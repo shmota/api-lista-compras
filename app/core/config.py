@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     @property
     def DATABASE_URL(self):
       return(
-        f"postgresql+psycopg://{self.DB_USER}:{quote(self.DB_PASSWORD)}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}".replace("%", "%%")
+        f"postgresql+psycopg://{self.DB_USER}:{quote(self.DB_PASSWORD)}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
       )
       
 
@@ -23,4 +23,3 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()
-print(settings.app_name)
