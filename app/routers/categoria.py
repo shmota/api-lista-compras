@@ -15,3 +15,13 @@ router = APIRouter(
 async def criar_categoria(categoria: CategoriaCreate, db: Session = Depends(get_db)):
     service = CategoriaService(db)
     return service.criar(categoria)
+
+@router.get("/", response_model=list[CategoriaResponse])
+async def listar_categorias(db: Session = Depends(get_db), nome: str = None):
+    service = CategoriaService(db)
+    
+    if nome:
+        return service.buscar_por_nome(nome.upper())
+    
+    return service.listar()
+

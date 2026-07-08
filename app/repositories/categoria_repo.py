@@ -9,14 +9,20 @@ class CategoriaRepository:
 
     def buscar_por_nome(self, nome: str) -> Categoria | None:
         return (
-            self.db.query(Categoria)
-            .filter(Categoria.nome == nome)
-            .first()
+            self.listar(Categoria.nome == nome).first()
         )
 
+    def listar(self, filtros: dict = {}) -> list[Categoria]:
+        
+        if not filtros:
+            return self.db.query(Categoria)
+        else:
+            return self.db.query(Categoria).filter_by(**filtros)
+        
     def criar(self, categoria: Categoria) -> Categoria:
         self.db.add(categoria)
         self.db.commit()
         self.db.refresh(categoria)
 
         return categoria
+    

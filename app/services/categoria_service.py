@@ -26,5 +26,19 @@ class CategoriaService:
         categoria = Categoria(
             nome=dados.nome
         )
+        
+        try:
+            categoria = self.repository.criar(categoria)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
 
-        return self.repository.criar(categoria)
+        return categoria
+    
+    def listar(self) -> list[Categoria]:
+        return self.repository.listar()
+    
+    def buscar_por_nome(self, nome: str) -> Categoria | None:
+        return self.repository.listar(Categoria.nome == Categoria.nome.like(f"%{nome}%"))
