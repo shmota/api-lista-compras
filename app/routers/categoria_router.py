@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from ..schemas.categoria_schema import (CategoriaCreate, CategoriaResponse)
+from ..schemas.categoria_schema import CategoriaCreate, CategoriaResponse, CategoriaUpdate
 from ..services.categoria_service import CategoriaService
 from ..core.database import get_db
 
@@ -17,11 +17,16 @@ async def criar_categoria(categoria: CategoriaCreate, db: Session = Depends(get_
     return service.criar(categoria)
 
 @router.get("/", response_model=list[CategoriaResponse])
-async def listar_categorias(db: Session = Depends(get_db), nome: str = None):
+async def listar_categoria(db: Session = Depends(get_db), nome: str = None):
     service = CategoriaService(db)
     
     if nome:
-        return service.buscar_por_nome(nome.upper())
+        return service.listar(nome.upper()).all()
     
-    return service.listar()
+    else:
+        return service.listar().all()
 
+@router.put("/", response_model=CategoriaResponse)
+async def alterar_categoria(categoria: CategoriaUpdate, db: Session = Depends(get_db)):
+    service = CategoriaService(db)
+    return service.alterar(categoria)

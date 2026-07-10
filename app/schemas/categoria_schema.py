@@ -31,6 +31,7 @@ class CategoriaResponse(CategoriaBase):
     nome: str
     
 class CategoriaUpdate(CategoriaBase):
+    id: int
     nome: str
     
 class CategoriaDelete(CategoriaBase):

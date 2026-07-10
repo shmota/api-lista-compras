@@ -7,17 +7,16 @@ class CategoriaRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def buscar_por_nome(self, nome: str) -> Categoria | None:
-        return (
-            self.listar(Categoria.nome == nome).first()
-        )
-
-    def listar(self, filtros: dict = {}) -> list[Categoria]:
+    def listar(self, *filtros) -> Query[Categoria]:
         
-        if not filtros:
-            return self.db.query(Categoria)
+        if filtros is None:
+            linhas = self.db.query(Categoria)
         else:
-            return self.db.query(Categoria).filter_by(**filtros)
+            linhas = self.db.query(Categoria).filter(*filtros)
+            
+        linhas = linhas.order_by(Categoria.id.asc())
+        
+        return linhas
         
     def criar(self, categoria: Categoria) -> Categoria:
         self.db.add(categoria)
@@ -26,3 +25,13 @@ class CategoriaRepository:
 
         return categoria
     
+    def alterar(self, dados: Categoria) -> Categoria:
+        
+        categoria = self.db.get(Categoria, dados.id)
+        
+        categoria.nome = dados.nome
+        
+        self.db.commit()
+        self.db.refresh(categoria)
+
+        return categoria

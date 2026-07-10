@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Query
 
 from app.models.categoria import Categoria
 from app.repositories.categoria_repo import CategoriaRepository
-from app.schemas.categoria_schema import CategoriaCreate
+from app.schemas.categoria_schema import CategoriaCreate, CategoriaUpdate
 
 
 class CategoriaService:
@@ -13,9 +13,9 @@ class CategoriaService:
 
     def criar(self, dados: CategoriaCreate) -> Categoria:
 
-        categoria_existente = self.repository.buscar_por_nome(
-            dados.nome
-        )
+        categoria_existente = self.repository.listar(
+            Categoria.nome == dados.nome.upper()
+        ).first()
 
         if categoria_existente:
             raise HTTPException(
@@ -37,8 +37,45 @@ class CategoriaService:
 
         return categoria
     
-    def listar(self) -> list[Categoria]:
-        return self.repository.listar()
+    def listar(self, nome: str = None) -> list[Categoria]:
+        
+        if nome:
+            return self.repository.listar(Categoria.nome.ilike(f"%{nome.lower()}%"))
+        else:
+            return self.repository.listar()
     
-    def buscar_por_nome(self, nome: str) -> Categoria | None:
-        return self.repository.listar(Categoria.nome == Categoria.nome.like(f"%{nome}%"))
+    def alterar(self, dados: CategoriaUpdate) -> Categoria:
+        
+        categoria: Categoria | None = self.repository.listar(
+            Categoria.id == dados.id
+        ).first()
+
+        if not categoria:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="A categoria informada não existe."
+            )
+            
+        elif categoria.nome == dados.nome:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="O novo nome não pode ser igual ao atual."
+            )
+            
+        elif self.repository.listar(Categoria.nome == dados.nome).all():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Já existe uma categoria com esse nome."
+            )
+            
+        categoria.nome = dados.nome
+        
+        try:
+            categoria = self.repository.alterar(categoria)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+
+        return categoria
