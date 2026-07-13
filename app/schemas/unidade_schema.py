@@ -10,21 +10,28 @@ class SchemaBase(BaseModel):
         extra="forbid",
     )
 
-class CategoriaBase(SchemaBase):
+class UnidadeBase(SchemaBase):
+    
     nome: str
+    sigla: str
     
-    @classmethod
     @field_validator("nome")
+    @classmethod
     def validar_nome(cls, value: str) -> str:
-        
         return validar_texto(value, "O nome")
-
-class CategoriaCreate(CategoriaBase):
-    pass
     
-class CategoriaResponse(SchemaBase):
+    @field_validator("sigla")
+    @classmethod
+    def validar_sigla(cls, value: str) -> str:
+        return validar_texto(value, "A sigla", 1, 10)
+    
+class UnidadeResponse(SchemaBase):
     id: int
     nome: str
+    sigla: str
     
-class CategoriaUpdate(CategoriaBase):
+class UnidadeCreate(UnidadeBase):
+    pass
+
+class UnidadeUpdate(UnidadeBase):
     pass

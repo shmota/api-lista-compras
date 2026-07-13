@@ -6,6 +6,9 @@ class CategoriaRepository:
 
     def __init__(self, db: Session):
         self.db = db
+        
+    def existe_nome(self, nome: str) -> bool:
+        return self.db.query(Categoria).filter(Categoria.nome.ilike(nome)).first() != None
 
     def listar(self, *filtros) -> Query[Categoria]:
         
@@ -35,3 +38,7 @@ class CategoriaRepository:
         self.db.refresh(categoria)
 
         return categoria
+    
+    def deletar(self, categoria: Categoria) -> None:
+        self.db.delete(categoria)
+        self.db.commit()
