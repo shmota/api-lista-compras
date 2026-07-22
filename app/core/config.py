@@ -14,9 +14,12 @@ class Settings(BaseSettings):
     
     @property
     def DATABASE_URL(self):
-      return(
-        f"postgresql+psycopg://{self.DB_USER}:{quote(self.DB_PASSWORD)}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-      )
+        
+        senha = quote(self.DB_PASSWORD).replace("%", "%%")
+        
+        return(
+            f"postgresql+psycopg://{self.DB_USER}:{quote(self.DB_PASSWORD)}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
       
 
     # Optional: load from a .env file

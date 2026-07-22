@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, func, Numeric, CheckConstraint, DateTime
+from sqlalchemy import ForeignKey, func, Numeric, CheckConstraint, DateTime, text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 import datetime
@@ -24,7 +24,7 @@ class Compra(Base):
         Numeric(10, 2),
         CheckConstraint("valor_total >= 0"),
         nullable=False,
-        default=0
+        server_default=text("0")
     )
     creado_em: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=False),

@@ -1,28 +1,20 @@
-from pydantic import BaseModel, ConfigDict
 from pydantic import Field, field_validator
 
-from .validators import validar_texto
+from .base_schema import SchemaBase as base
 
-class SchemaBase(BaseModel):
-    model_config = ConfigDict(
-        from_attributes=True,
-        str_strip_whitespace=True,
-        extra="forbid",
-    )
-
-class CategoriaBase(SchemaBase):
+class CategoriaBase(base):
     nome: str
     
     @classmethod
     @field_validator("nome")
     def validar_nome(cls, value: str) -> str:
         
-        return validar_texto(value, "O nome")
+        return base.validar_texto(value, "O nome")
 
 class CategoriaCreate(CategoriaBase):
     pass
     
-class CategoriaResponse(SchemaBase):
+class CategoriaResponse(base):
     id: int
     nome: str
     

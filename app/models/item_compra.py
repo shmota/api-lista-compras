@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, func, Numeric, CheckConstraint
+from sqlalchemy import ForeignKey, func, Numeric, CheckConstraint, text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 import datetime
@@ -26,18 +26,18 @@ class ItemCompra(Base):
     quantidade: Mapped[int] = mapped_column(
         CheckConstraint("quantidade >= 0"),
         nullable=False,
-        default=0
+        server_default=text("0")
     )
     valor_unitario: Mapped[decimal.Decimal] = mapped_column(
         Numeric(10, 2),
         CheckConstraint("valor_unitario >= 0"),
         nullable=False,
-        default=0
+        server_default=text("0")
     )
     valor_total: Mapped[decimal.Decimal] = mapped_column(
         Numeric(10, 2),
         CheckConstraint("valor_total >= 0"),
         nullable=False,
-        default=0
+        server_default=text("0")
     )
     

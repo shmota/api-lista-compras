@@ -1,5 +1,4 @@
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -17,3 +16,5 @@ class Categoria(Base):
         nullable=False,
         index=True
     )
+    
+    produtos = relationship("Produto", back_populates="categoria")

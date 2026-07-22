@@ -1,6 +1,5 @@
-from sqlalchemy import ForeignKey, func, DateTime
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey, func, DateTime, CheckConstraint, text, Numeric
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 import datetime
 
 from app.core.database import Base
@@ -26,20 +25,24 @@ class Produto(Base):
         ForeignKey("unidade_medida.id"),        
         nullable=False
     )
-    quantidade_atual: Mapped[int] = mapped_column(
+    quantidade_atual: Mapped[float] = mapped_column(
+        Numeric(12, 3),
+        CheckConstraint("quantidade_atual >= 0"),
         nullable=False,
-        default=0
+        server_default=text("0")
     )
-    quantidade_ideal: Mapped[int] = mapped_column(
+    quantidade_ideal: Mapped[float] = mapped_column(
+        Numeric(12, 3),
+        CheckConstraint("quantidade_ideal >= 0"),
         nullable=False,
-        default=0
+        server_default=text("0"),
     )
     observacao: Mapped[str] = mapped_column(
-        default=""
+        server_default=text("''"),
     )
     ativo: Mapped[bool] = mapped_column(
         nullable=False,
-        default=True
+        server_default=text("TRUE")
     )
     criado_em: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=False),
@@ -52,3 +55,19 @@ class Produto(Base):
         server_default=func.now()
     )
     
+    categoria = relationship(
+        "Categoria",
+        back_populates="produtos"
+    )
+
+    unidade_medida = relationship(
+        "UnidadeMedida"
+    )
+    
+    @property
+    def categoria_nome(self):
+        return self.categoria.nome
+
+    @property
+    def unidade_medida_nome(self):
+        return self.unidade_medida.nome

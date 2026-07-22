@@ -74,10 +74,22 @@ class UnidadeService:
                 detail="A unidade informada nao existe.",
             )
             
-        if unidade.sigla == dados.sigla and unidade.nome == dados.nome:
+        elif unidade.sigla == dados.sigla and unidade.nome == dados.nome:
             raise HTTPException(
                 status_code=status.HTTP_200_OK,
                 detail="Nenhuma alteração foi necessária.",
+            )
+            
+        elif self.repository.existe_nome(dados.nome):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Já existe uma unidade com esse nome.",
+            )
+            
+        elif self.repository.existe_sigla(dados.sigla):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Já existe uma unidade com essa sigla.",
             )
 
         unidade.sigla = dados.sigla
@@ -87,7 +99,7 @@ class UnidadeService:
         return unidade
     
     def deletar(self, id: int) -> None:
-        unidade = self.repository.listar(UnidadeMedida.id == id).first()
+        unidade: UnidadeMedida | None = self.repository.get_by_id(id)
 
         if not unidade:
             raise HTTPException(

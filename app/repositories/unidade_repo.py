@@ -7,12 +7,15 @@ class UnidadeRepository:
     def __init__(self, db: Session):
         self.db = db
         
-    def existe_nome(self, nome: str) -> bool:
-        return self.db.query(UnidadeMedida).filter(UnidadeMedida.nome.ilike(nome)).first() != None
+    def get_by_id(self, id: str) -> UnidadeMedida:
+        return self.db.get(UnidadeMedida, id)
+        
+    def existe_nome(self, nome: str) -> UnidadeMedida:
+        return self.db.query(UnidadeMedida).filter(UnidadeMedida.nome.ilike(nome)).first() is not None
     
     
     def existe_sigla(self, sigla: str) -> bool:
-        return self.db.query(UnidadeMedida).filter(UnidadeMedida.sigla.like(sigla)).first() != None
+        return self.db.query(UnidadeMedida).filter(UnidadeMedida.sigla.like(sigla)).first() is not None
         
     def criar(self, unidade: UnidadeMedida) -> UnidadeMedida:
         self.db.add(unidade)
@@ -34,7 +37,7 @@ class UnidadeRepository:
     
     def alterar(self, dados: UnidadeMedida) -> UnidadeMedida:
         
-        unidade = self.db.get(UnidadeMedida, dados.id)
+        unidade = self.get_by_id(dados.id)
         
         unidade.sigla = dados.sigla
         unidade.nome = dados.nome

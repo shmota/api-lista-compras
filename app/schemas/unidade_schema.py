@@ -1,16 +1,9 @@
 from pydantic import BaseModel, ConfigDict
 from pydantic import Field, field_validator
 
-from .validators import validar_texto
+from .base_schema import SchemaBase as base
 
-class SchemaBase(BaseModel):
-    model_config = ConfigDict(
-        from_attributes=True,
-        str_strip_whitespace=True,
-        extra="forbid",
-    )
-
-class UnidadeBase(SchemaBase):
+class UnidadeBase(base):
     
     nome: str
     sigla: str
@@ -18,14 +11,14 @@ class UnidadeBase(SchemaBase):
     @field_validator("nome")
     @classmethod
     def validar_nome(cls, value: str) -> str:
-        return validar_texto(value, "O nome")
+        return base.validar_texto(value, "O nome")
     
     @field_validator("sigla")
     @classmethod
     def validar_sigla(cls, value: str) -> str:
-        return validar_texto(value, "A sigla", 1, 10)
+        return base.validar_texto(value, "A sigla", 1, 10)
     
-class UnidadeResponse(SchemaBase):
+class UnidadeResponse(base):
     id: int
     nome: str
     sigla: str

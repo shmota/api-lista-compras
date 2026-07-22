@@ -66,7 +66,7 @@ class CategoriaService:
         return categoria
 
     def deletar(self, id: int) -> None:
-        categoria: Categoria | None = self.repository.listar(Categoria.id == id).first()
+        categoria: Categoria | None = self.repository.get_by_id(id)
 
         if not categoria:
             raise HTTPException(

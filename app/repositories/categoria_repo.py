@@ -7,8 +7,11 @@ class CategoriaRepository:
     def __init__(self, db: Session):
         self.db = db
         
-    def existe_nome(self, nome: str) -> bool:
-        return self.db.query(Categoria).filter(Categoria.nome.ilike(nome)).first() != None
+    def get_by_id(self, id: int):
+        return self.db.get(Categoria, id)
+        
+    def existe_nome(self, nome: str) -> Categoria:
+        return self.db.query(Categoria).filter(Categoria.nome.ilike(nome)).first() is not None
 
     def listar(self, *filtros) -> Query[Categoria]:
         
