@@ -17,7 +17,10 @@ class ProdutoRepository:
         
         return produto
     
-    def listar(self, filtros) -> Query[Produto]:
+    def get_by_id(self, id: int) -> Produto:
+        return self.db.get(Produto, id)
+    
+    def listar(self, *filtros) -> Query[Produto]:
         
         if filtros is None:
             linhas = self.db.query(Produto)

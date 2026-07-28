@@ -62,7 +62,7 @@ class UnidadeService:
         ).all()
     
     def listar_id(self, id: int) -> UnidadeMedida:
-        return self.repository.listar(UnidadeMedida.id == id).first()
+        return self.repository.get_by_id(id)
     
     def alterar(self, id: int, dados: UnidadeUpdate) -> UnidadeMedida:
         

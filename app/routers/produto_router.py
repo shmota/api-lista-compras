@@ -26,4 +26,9 @@ async def listar_produto(
 ):
     service = ProdutoService(db)
     
-    return service.listar(filtros)
+    return service.listar(filtros = filtros)
+
+@router.get("/{id}", response_model=ProdutoResponse)
+async def listar_produto_id(id: int, db: Session = Depends(get_db)):
+    service = ProdutoService(db)
+    return service.listar(id = id)

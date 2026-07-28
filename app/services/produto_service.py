@@ -39,24 +39,31 @@ class ProdutoService:
         )
 
         produto = self.repository.criar(produto)
-        
+
         produto = ProdutoResponse.model_validate(produto)
 
         return produto
-    
-    
-    def listar(self, filtros: ProdutoFiltros) -> list[Produto]:
-        
-        query = []
-        
-        
-        if filtros.nome:
-            query.append(Produto.nome.ilike(f"%{filtros.nome.lower()}%"))
-        if filtros.categoria:
-            query.append(Produto.categoria_id == filtros.categoria)
-        if filtros.unidade:
-            query.append(Produto.unidade_medida_id == filtros.unidade)
-        if filtros.em_falta:
-            query.append(Produto.quantidade_atual < Produto.quantidade_ideal)
-        
-        return self.repository.listar(query).all()
+
+    def listar(self, filtros: ProdutoFiltros = None, id: int = None) -> list[Produto] or Produto:
+
+        if id:
+
+            return self.repository.get_by_id(id)
+
+        else:
+            
+            query = []
+            
+            if filtros.em_falta:
+                query.append(Produto.quantidade_atual < Produto.quantidade_ideal)
+                
+            if filtros.categoria:
+                query.append(Produto.categoria_id == filtros.categoria)
+                
+            if filtros.unidade:
+                query.append(Produto.unidade_medida_id == filtros.unidade)
+                
+            if filtros.nome:
+                query.append(Produto.nome.ilike(f"%{filtros.nome.lower()}%"))
+                
+            return self.repository.listar(*query).all()
