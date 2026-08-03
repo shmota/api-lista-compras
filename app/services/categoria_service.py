@@ -1,14 +1,13 @@
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Session
 
-from app.models.categoria import Categoria
-from app.repositories.categoria_repo import CategoriaRepository
-from app.schemas.categoria_schema import CategoriaCreate, CategoriaUpdate
+from ..models.categoria import Categoria
+from ..repositories.categoria_repo import CategoriaRepository
+from ..schemas.categoria_schema import CategoriaCreate, CategoriaUpdate
 from .util import execute
 
 
 class CategoriaService:
-
     def __init__(self, db: Session):
         self.repository = CategoriaRepository(db)
 
@@ -26,16 +25,26 @@ class CategoriaService:
 
         return categoria
 
-    def listar(self, dado: str = None) -> list[Categoria]:
+    def listar(self, dado: str | None = None) -> list[Categoria]:
 
         if dado:
             try:
                 dado = int(dado)
-                return self.repository.listar(Categoria.id == dado)
+                return self.repository.listar(Categoria.id == dado).all()
             except ValueError:
-                return self.repository.listar(Categoria.nome.ilike(f"%{dado.lower()}%"))
+                return self.repository.listar(Categoria.nome.ilike(f"%{dado.lower()}%")).all()
         else:
-            return self.repository.listar()
+            return self.repository.listar().all()
+
+    def listar_id(self, id: int) -> Categoria:
+        categoria: Categoria | None = self.repository.get_by_id(id)
+        if not categoria:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="A categoria informada não existe.",
+            )
+        return categoria
+
 
     def alterar(self, id: int, dados: CategoriaUpdate) -> Categoria:
 

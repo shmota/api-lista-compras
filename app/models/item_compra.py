@@ -1,8 +1,7 @@
-from sqlalchemy import ForeignKey, func, Numeric, CheckConstraint, text
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 import datetime
 import decimal
+from sqlalchemy import CheckConstraint, ForeignKey, Numeric, func, text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -23,7 +22,8 @@ class ItemCompra(Base):
         ForeignKey("produto.id"),
         nullable=False
     )
-    quantidade: Mapped[int] = mapped_column(
+    quantidade: Mapped[float] = mapped_column(
+        Numeric(12, 3),
         CheckConstraint("quantidade >= 0"),
         nullable=False,
         server_default=text("0")
@@ -40,4 +40,12 @@ class ItemCompra(Base):
         nullable=False,
         server_default=text("0")
     )
-    
+
+    compra = relationship(
+        "Compra",
+        back_populates="itens"
+    )
+
+    produto = relationship(
+        "Produto"
+    )

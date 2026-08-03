@@ -1,13 +1,16 @@
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session, Query
-from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 from ..models.produto import Produto
+from ..repositories.categoria_repo import CategoriaRepository
 from ..repositories.produto_repo import ProdutoRepository
 from ..repositories.unidade_repo import UnidadeRepository
-from ..repositories.categoria_repo import CategoriaRepository
-from ..schemas.produto_schema import ProdutoCreate, ProdutoResponse, ProdutoFiltros
-
+from ..schemas.produto_schema import (
+    ProdutoCreate,
+    ProdutoFiltros,
+    ProdutoResponse,
+    ProdutoUpdate,
+)
 from .util import execute
 
 
@@ -40,30 +43,53 @@ class ProdutoService:
 
         produto = self.repository.criar(produto)
 
-        produto = ProdutoResponse.model_validate(produto)
-
         return produto
 
-    def listar(self, filtros: ProdutoFiltros = None, id: int = None) -> list[Produto] or Produto:
+    def listar(
+        self, filtros: ProdutoFiltros = None, id: int | None = None
+    ) -> list[Produto] | Produto:
 
         if id:
-
             return self.repository.get_by_id(id)
 
         else:
-            
             query = []
-            
+
             if filtros.em_falta:
                 query.append(Produto.quantidade_atual < Produto.quantidade_ideal)
-                
+
             if filtros.categoria:
                 query.append(Produto.categoria_id == filtros.categoria)
-                
+
             if filtros.unidade:
                 query.append(Produto.unidade_medida_id == filtros.unidade)
-                
+
             if filtros.nome:
                 query.append(Produto.nome.ilike(f"%{filtros.nome.lower()}%"))
-                
+
             return self.repository.listar(*query).all()
+
+    def alterar(self, id: int, dados: ProdutoUpdate):
+
+        produto = self.repository.get_by_id(id)
+
+        if produto is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Produto nao encontrado",
+            )
+
+        produto = Produto(id=id, **dados.dict(exclude_unset=True))
+
+        return execute(lambda: self.repository.alterar(produto))
+
+    def deletar(self, id: int) -> None:
+        produto = self.repository.get_by_id(id)
+
+        if produto is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Produto nao encontrado",
+            )
+
+        execute(lambda: self.repository.deletar(produto))

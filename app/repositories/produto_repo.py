@@ -24,9 +24,22 @@ class ProdutoRepository:
         
         if filtros is None:
             linhas = self.db.query(Produto)
+            
         else:
             linhas = self.db.query(Produto).filter(*filtros)
             
         linhas = linhas.order_by(Produto.id.asc())
         
         return linhas
+    
+    def alterar(self, produto: Produto) -> Produto:
+        
+        self.db.merge(produto)
+        
+        self.db.commit()
+        
+        return self.get_by_id(produto.id)
+
+    def deletar(self, produto: Produto) -> None:
+        self.db.delete(produto)
+        self.db.commit()

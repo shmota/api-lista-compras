@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from typing import Annotated
+from fastapi import Depends
+from fastapi import APIRouter
 
-from ..services.produto_service import ProdutoService
-from ..schemas.produto_schema import ProdutoCreate, ProdutoResponse, ProdutoFiltros
 from ..core.database import get_db
+from ..schemas.produto_schema import (
+    ProdutoCreate,
+    ProdutoFiltros,
+    ProdutoResponse,
+    ProdutoUpdate,
+)
+from ..services.produto_service import ProdutoService
 
 router = APIRouter(
     prefix="/produto",
@@ -14,21 +18,37 @@ router = APIRouter(
 
 
 @router.post("/", response_model=ProdutoResponse)
-async def criar_produto(produto: ProdutoCreate, db: Session = Depends(get_db)):
-    service = ProdutoService(db)
-    return service.criar(produto)
+async def criar_produto(produto: ProdutoCreate):
+    with get_db() as db:
+        service = ProdutoService(db)
+        return service.criar(produto)
 
 
 @router.get("/", response_model=list[ProdutoResponse])
-async def listar_produto(
-    db: Session = Depends(get_db),
-    filtros: ProdutoFiltros = Depends(),
-):
-    service = ProdutoService(db)
-    
-    return service.listar(filtros = filtros)
+async def listar_produto(filtros: ProdutoFiltros = Depends()):
+    with get_db() as db:
+        service = ProdutoService(db)
+        return service.listar(filtros=filtros)
+
 
 @router.get("/{id}", response_model=ProdutoResponse)
-async def listar_produto_id(id: int, db: Session = Depends(get_db)):
-    service = ProdutoService(db)
-    return service.listar(id = id)
+async def listar_produto_id(id: int):
+    with get_db() as db:
+        service = ProdutoService(db)
+        return service.listar(id=id)
+
+
+@router.put("/{id}", response_model=ProdutoResponse)
+async def alterar_produto(id: int, produto: ProdutoUpdate):
+    with get_db() as db:
+        service = ProdutoService(db)
+        service.alterar(id, produto)
+        return service.listar(id=id)
+
+
+@router.delete("/{id}", status_code=204)
+async def deletar_produto(id: int):
+    with get_db() as db:
+        service = ProdutoService(db)
+        service.deletar(id)
+

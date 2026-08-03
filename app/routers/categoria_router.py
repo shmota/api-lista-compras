@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter
 
-from ..schemas.categoria_schema import CategoriaCreate, CategoriaResponse, CategoriaUpdate
-from ..services.categoria_service import CategoriaService
 from ..core.database import get_db
+from ..schemas.categoria_schema import (
+    CategoriaCreate,
+    CategoriaResponse,
+    CategoriaUpdate,
+)
+from ..services.categoria_service import CategoriaService
 
 router = APIRouter(
     prefix="/categoria",
@@ -11,32 +14,37 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @router.post("/", response_model=CategoriaResponse)
-async def criar_categoria(categoria: CategoriaCreate, db: Session = Depends(get_db)):
-    service = CategoriaService(db)
-    return service.criar(categoria)
+async def criar_categoria(categoria: CategoriaCreate):
+    with get_db() as db:
+        service = CategoriaService(db)
+        return service.criar(categoria)
+
 
 @router.get("/", response_model=list[CategoriaResponse])
-async def listar_categoria(db: Session = Depends(get_db), nome: str = None):
-    service = CategoriaService(db)
-    
-    if nome:
-        return service.listar(nome).all()
-    
-    else:
-        return service.listar().all()
-    
+async def listar_categoria(nome: str = None):
+    with get_db() as db:
+        service = CategoriaService(db)
+        return service.listar(dado=nome)
+
+
 @router.get("/{id}", response_model=CategoriaResponse)
-async def listar_categoria_id(id: int, db: Session = Depends(get_db)):
-    service = CategoriaService(db)
-    return service.listar(id).first()
+async def listar_categoria_id(id: int):
+    with get_db() as db:
+        service = CategoriaService(db)
+        return service.listar_id(id)
+
 
 @router.put("/{id}", response_model=CategoriaResponse)
-async def alterar_categoria(categoria: CategoriaUpdate, id: int, db: Session = Depends(get_db)):
-    service = CategoriaService(db)
-    return service.alterar(id, categoria)
+async def alterar_categoria(id: int, categoria: CategoriaUpdate):
+    with get_db() as db:
+        service = CategoriaService(db)
+        return service.alterar(id, categoria)
+
 
 @router.delete("/{id}", status_code=204)
-async def deletar_categoria(id: int, db: Session = Depends(get_db)):
-    service = CategoriaService(db)
-    service.deletar(id)
+async def deletar_categoria(id: int):
+    with get_db() as db:
+        service = CategoriaService(db)
+        service.deletar(id)

@@ -1,8 +1,7 @@
-from sqlalchemy import ForeignKey, func, Numeric, CheckConstraint, DateTime, text
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 import datetime
 import decimal
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Numeric, func, text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -31,4 +30,9 @@ class Compra(Base):
         nullable=False,
         server_default=func.now()
     )
-    
+
+    itens = relationship(
+        "ItemCompra",
+        back_populates="compra",
+        cascade="all, delete-orphan"
+    )
