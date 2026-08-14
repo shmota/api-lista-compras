@@ -8,6 +8,6 @@ Essa api faz parte de um projeto pessoal para um aplicativo de controle de estoq
 
 ## Em breve mais...
 
-Diagrama da api
-JSON de configuração para o postman
-E mais....
+Diagrama da api, 
+JSON de configuração para o postman, 
+e mais....
